@@ -41,9 +41,20 @@ def perform_question_answering(uploaded_files, question):
         return response
 
 def main():
-    st.set_page_config(page_title="Document Q&A Chatbot", page_icon="🤖")
+    st.set_page_config(page_title="Document Q&A Chatbot", page_icon="🤖", layout="wide", initial_sidebar_state="expanded", menu_items={"Get Help": None, "Report a Bug": None})
     
     st.title("Document Q&A Chatbot")
+    
+    # Customizing the background
+    page_bg_img = '''
+    <style>
+    body {
+    background-image: url("https://example.com/background.jpg");
+    background-size: cover;
+    }
+    </style>
+    '''
+    st.markdown(page_bg_img, unsafe_allow_html=True)
 
     # Sidebar for uploading PDF documents
     st.sidebar.title("Upload PDF Documents")
@@ -62,6 +73,7 @@ def main():
                 # Wrap the response text to ensure it displays properly
                 wrapped_text = textwrap.fill(response.response, width=70)
                 st.text("Bot: " + wrapped_text)  # Display the wrapped text
+                question = ""  # Clear the input box after answering
             else:
                 st.text("Bot: Sorry, I couldn't find an answer.")
 
