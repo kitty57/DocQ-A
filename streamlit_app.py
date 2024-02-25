@@ -1,6 +1,7 @@
 import streamlit as st
 import asyncio
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.core import ServiceContext, set_global_service_context
 from llama_index.llms.gradient import GradientBaseModelLLM
 from llama_index.embeddings.gradient import GradientEmbedding
 import os
@@ -19,7 +20,6 @@ def perform_question_answering(uploaded_files, question):
             with open(os.path.join(directory, f"document_{i}.pdf"), "wb") as f:
                 f.write(uploaded_file.getbuffer())
 
-        # Initialize LLM and embedding models
         llm = GradientBaseModelLLM(
             base_model_slug="llama2-7b-chat",
             max_tokens=400,
@@ -29,10 +29,15 @@ def perform_question_answering(uploaded_files, question):
             gradient_workspace_id=st.secrets["GRADIENT_WORKSPACE_ID"],
             gradient_model_slug="bge-large",
         )
+        service_context = ServiceContext.from_defaults(
+            llm=llm,
+            embed_model=embed_model,
+            chunk_size=256,
+        )
+        set_global_service_context(service_context)
 
-        # Load documents into VectorStoreIndex
         documents_reader = SimpleDirectoryReader(directory).load_data()
-        vector_store_index = VectorStoreIndex.from_documents(documents_reader, llm=llm, embed_model=embed_model)
+        vector_store_index = VectorStoreIndex.from_documents(documents_reader, service_context=service_context)
         query_engine = vector_store_index.as_query_engine()
 
         # Perform question answering
