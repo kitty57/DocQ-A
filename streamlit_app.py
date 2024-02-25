@@ -1,27 +1,32 @@
 import streamlit as st
+import os
 from llama_index.core import ServiceContext, set_global_service_context
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 from llama_index.llms.gradient import GradientBaseModelLLM
 from llama_index.embeddings.gradient import GradientEmbedding
-import os
 
-# Retrieve Gradient Access Token and Workspace ID from environment variables
-gradient_access_token = os.getenv('GRADIENT_ACCESS_TOKEN')
-gradient_workspace_id = os.getenv('GRADIENT_WORKSPACE_ID')
+# Function to perform question answering
+def perform_question_answering(uploaded_files, question):
+    # Check if documents are uploaded
+    if uploaded_files:
+        directory = "uploaded_documents"
+        os.makedirs(directory, exist_ok=True)
+        for i, uploaded_file in enumerate(uploaded_files):
+            with open(os.path.join(directory, f"document_{i}.pdf"), "wb") as f:
+                f.write(uploaded_file.getbuffer())
 
-def main():
-    st.set_page_config(page_title="Document Q&A App", page_icon="📚")
-    if gradient_access_token and gradient_workspace_id:
+        # Initialize LLM and embedding models
         llm = GradientBaseModelLLM(
             base_model_slug="llama2-7b-chat",
             max_tokens=400,
         )
         embed_model = GradientEmbedding(
-            gradient_access_token=gradient_access_token,
-            gradient_workspace_id=gradient_workspace_id,
+            gradient_access_token=st.secrets["GRADIENT_ACCESS_TOKEN"],
+            gradient_workspace_id=st.secrets["GRADIENT_WORKSPACE_ID"],
             gradient_model_slug="bge-large",
         )
 
+        # Create the service context
         service_context = ServiceContext.from_defaults(
             llm=llm,
             embed_model=embed_model,
@@ -29,33 +34,38 @@ def main():
         )
         set_global_service_context(service_context)
 
-        st.title("Document Q&A App")
-        st.sidebar.title("Upload PDF Documents")
-        uploaded_files = st.sidebar.file_uploader("Upload PDF files", accept_multiple_files=True, type=["pdf"])
+        # Load documents into VectorStoreIndex
+        documents_reader = SimpleDirectoryReader(directory)
+        vector_store_index = VectorStoreIndex.from_documents(documents_reader, service_context=service_context)
+        query_engine = vector_store_index.as_query_engine()
 
-        if uploaded_files:
-            directory = "uploaded_documents"
-            os.makedirs(directory, exist_ok=True)
-            for i, uploaded_file in enumerate(uploaded_files):
-                with open(os.path.join(directory, f"document_{i}.pdf"), "wb") as f:
-                    f.write(uploaded_file.getbuffer())
+        # Perform question answering
+        response = query_engine.query(question)
 
-            documents_reader = SimpleDirectoryReader(directory)
-            vector_store_index = VectorStoreIndex.from_documents(documents_reader, service_context=service_context)
-            query_engine = vector_store_index.as_query_engine()
+        return response
 
-            st.success("Documents processed successfully!")
+def main():
+    st.set_page_config(page_title="Document Q&A App", page_icon="📚")
+    
+    st.title("Document Q&A App")
 
-            question = st.text_input("Ask your question:", "")
+    # Sidebar for uploading PDF documents
+    st.sidebar.title("Upload PDF Documents")
+    uploaded_files = st.sidebar.file_uploader("Upload PDF files", accept_multiple_files=True, type=["pdf"])
 
-            if st.button("Get Answer"):
-                with st.spinner("Searching..."):
-                    response = query_engine.query(question)
-                    if response:
-                        st.write("Answer:")
-                        st.write(response[0].response)
-                    else:
-                        st.write("Sorry, no answer found.")
+    # Question input
+    question = st.text_input("Ask your question:", "")
+
+    # Answer button
+    if st.button("Get Answer"):
+        with st.spinner("Searching..."):
+            # Perform question answering
+            response = perform_question_answering(uploaded_files, question)
+            if response:
+                st.write("Answer:")
+                st.write(response[0].response)
+            else:
+                st.write("Sorry, no answer found.")
 
 if __name__ == "__main__":
     main()
