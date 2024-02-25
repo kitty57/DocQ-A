@@ -1,9 +1,13 @@
 import streamlit as st
-import os
+import asyncio
 from llama_index.core import ServiceContext, set_global_service_context
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 from llama_index.llms.gradient import GradientBaseModelLLM
 from llama_index.embeddings.gradient import GradientEmbedding
+import os
+
+# Ensure event loop is properly initialized
+asyncio.set_event_loop(asyncio.new_event_loop())
 
 # Function to perform question answering
 def perform_question_answering(uploaded_files, question):
@@ -45,27 +49,27 @@ def perform_question_answering(uploaded_files, question):
         return response
 
 def main():
-    st.set_page_config(page_title="Document Q&A App", page_icon="📚")
+    st.set_page_config(page_title="Document Q&A Chatbot", page_icon="🤖")
     
-    st.title("Document Q&A App")
+    st.title("Document Q&A Chatbot")
 
     # Sidebar for uploading PDF documents
     st.sidebar.title("Upload PDF Documents")
     uploaded_files = st.sidebar.file_uploader("Upload PDF files", accept_multiple_files=True, type=["pdf"])
 
-    # Question input
-    question = st.text_input("Ask your question:", "")
+    # Chat interface
+    st.title("Chat Interface")
+    question = st.text_input("You: ", "")
 
     # Answer button
-    if st.button("Get Answer"):
-        with st.spinner("Searching..."):
+    if st.button("Ask"):
+        with st.spinner("Thinking..."):
             # Perform question answering
             response = perform_question_answering(uploaded_files, question)
             if response:
-                st.write("Answer:")
-                st.write(response[0].response)
+                st.text("Bot: " + response[0].response)
             else:
-                st.write("Sorry, no answer found.")
+                st.text("Bot: Sorry, I couldn't find an answer.")
 
 if __name__ == "__main__":
     main()
