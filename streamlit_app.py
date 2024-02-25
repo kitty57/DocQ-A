@@ -45,6 +45,7 @@ def perform_question_answering(uploaded_files, question):
 
         # Perform question answering
         response = query_engine.query(question)
+        print(response)  # Add logging here to inspect the response object
 
         return response
 
