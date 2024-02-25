@@ -1,10 +1,5 @@
 # Document Q&A Chatbot
 Welcome to the Document Q&A Chatbot! This Streamlit app allows you to upload PDF documents and ask questions related to the content of those documents. The chatbot utilizes machine learning models for natural language processing to provide accurate responses to your queries.
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://app-starter-kit.streamlit.app/)
-
-## GitHub Codespaces
-
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/streamlit/app-starter-kit?quickstart=1)
 
 ##Features
 Upload multiple PDF documents
