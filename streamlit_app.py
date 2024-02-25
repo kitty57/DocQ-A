@@ -39,7 +39,7 @@ def perform_question_answering(uploaded_files, question):
         set_global_service_context(service_context)
 
         # Load documents into VectorStoreIndex
-        documents_reader = SimpleDirectoryReader(directory)
+        documents_reader = SimpleDirectoryReader(directory).load_data()
         vector_store_index = VectorStoreIndex.from_documents(documents_reader, service_context=service_context)
         query_engine = vector_store_index.as_query_engine()
 
