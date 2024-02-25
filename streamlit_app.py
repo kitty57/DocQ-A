@@ -40,6 +40,32 @@ def perform_question_answering(uploaded_files, question):
         return response
 
 def main():
+    # Custom CSS for the chat interface
+    st.markdown(
+        """
+        <style>
+            .stApp {
+                background-color: black;
+            }
+            .stTextInput > div > div > input {
+                background-color: #333333;
+                color: white;
+            }
+            .stButton > button {
+                background-color: #333333;
+                color: white;
+            }
+            .stText > div {
+                color: white;
+            }
+            .stText.stText {
+                color: white;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
     st.set_page_config(page_title="Document Q&A Chatbot", page_icon="🤖")
     
     st.title("Document Q&A Chatbot")
