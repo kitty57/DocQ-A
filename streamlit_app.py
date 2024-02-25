@@ -4,6 +4,7 @@ from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 from llama_index.llms.gradient import GradientBaseModelLLM
 from llama_index.embeddings.gradient import GradientEmbedding
 import os
+import textwrap  # Import the textwrap module
 
 # Ensure event loop is properly initialized
 asyncio.set_event_loop(asyncio.new_event_loop())
@@ -58,7 +59,9 @@ def main():
             # Perform question answering
             response = perform_question_answering(uploaded_files, question)
             if response:
-                st.text("Bot: " + response.response)
+                # Wrap the response text to ensure it displays properly
+                wrapped_text = textwrap.fill(response.response, width=70)
+                st.text("Bot: " + wrapped_text)  # Display the wrapped text
             else:
                 st.text("Bot: Sorry, I couldn't find an answer.")
 
