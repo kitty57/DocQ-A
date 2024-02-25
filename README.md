@@ -9,9 +9,9 @@ User-friendly interface
 # How to Use
 Upload PDF Documents: In the sidebar, use the file uploader to upload one or more PDF files containing the documents you want to query.
 
-# Ask Questions: Enter your question in the chat interface and click the "Ask" button.
+*Ask Questions*: Enter your question in the chat interface and click the "Ask" button.
 
-# Get Responses: The chatbot will process your question and provide a response based on the content of the uploaded documents.
+*Get Responses*: The chatbot will process your question and provide a response based on the content of the uploaded documents.
 
 ## Deployment
 This app is deployed and accessible online at: https://docq-a.streamlit.app/
