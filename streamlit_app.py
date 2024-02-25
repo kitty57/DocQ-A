@@ -5,14 +5,10 @@ from llama_index.core import ServiceContext, set_global_service_context
 from llama_index.llms.gradient import GradientBaseModelLLM
 from llama_index.embeddings.gradient import GradientEmbedding
 import os
-import textwrap  # Import the textwrap module
-
-# Ensure event loop is properly initialized
+import textwrap 
 asyncio.set_event_loop(asyncio.new_event_loop())
 
-# Function to perform question answering
 def perform_question_answering(uploaded_files, question):
-    # Check if documents are uploaded
     if uploaded_files:
         directory = "uploaded_documents"
         os.makedirs(directory, exist_ok=True)
@@ -40,7 +36,6 @@ def perform_question_answering(uploaded_files, question):
         vector_store_index = VectorStoreIndex.from_documents(documents_reader, service_context=service_context)
         query_engine = vector_store_index.as_query_engine()
 
-        # Perform question answering
         response = query_engine.query(question)
 
         return response
@@ -49,8 +44,7 @@ def main():
     st.set_page_config(page_title="Document Q&A Chatbot", page_icon="🤖", layout="wide", initial_sidebar_state="expanded", menu_items={"Get Help": None, "Report a Bug": None})
     
     st.title("Document Q&A Chatbot")
-    
-    # Customizing the background
+
     page_bg_img = '''
     <style>
     body {
@@ -60,25 +54,20 @@ def main():
     </style>
     '''
     st.markdown(page_bg_img, unsafe_allow_html=True)
-
-    # Sidebar for uploading PDF documents
     st.sidebar.title("Upload PDF Documents")
     uploaded_files = st.sidebar.file_uploader("Upload PDF files", accept_multiple_files=True, type=["pdf"])
 
-    # Chat interface
     st.title("Chat Interface")
     question = st.text_input("You: ", "")
 
-    # Answer button
     if st.button("Ask"):
         with st.spinner("Thinking..."):
             # Perform question answering
             response = perform_question_answering(uploaded_files, question)
             if response:
-                # Wrap the response text to ensure it displays properly
                 wrapped_text = textwrap.fill(response.response, width=70)
-                st.text("Bot: " + wrapped_text)  # Display the wrapped text
-                question = ""  # Clear the input box after answering
+                st.text("Bot: " + wrapped_text) 
+                question = ""  
             else:
                 st.text("Bot: Sorry, I couldn't find an answer.")
 
