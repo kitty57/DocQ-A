@@ -1,6 +1,5 @@
 import streamlit as st
 import asyncio
-from llama_index.core import ServiceContext, set_global_service_context
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 from llama_index.llms.gradient import GradientBaseModelLLM
 from llama_index.embeddings.gradient import GradientEmbedding
@@ -30,22 +29,13 @@ def perform_question_answering(uploaded_files, question):
             gradient_model_slug="bge-large",
         )
 
-        # Create the service context
-        service_context = ServiceContext.from_defaults(
-            llm=llm,
-            embed_model=embed_model,
-            chunk_size=256,
-        )
-        set_global_service_context(service_context)
-
         # Load documents into VectorStoreIndex
         documents_reader = SimpleDirectoryReader(directory).load_data()
-        vector_store_index = VectorStoreIndex.from_documents(documents_reader, service_context=service_context)
+        vector_store_index = VectorStoreIndex.from_documents(documents_reader, llm=llm, embed_model=embed_model)
         query_engine = vector_store_index.as_query_engine()
 
         # Perform question answering
         response = query_engine.query(question)
-        print(response)  # Add logging here to inspect the response object
 
         return response
 
@@ -68,7 +58,7 @@ def main():
             # Perform question answering
             response = perform_question_answering(uploaded_files, question)
             if response:
-                st.text("Bot: " + response[0].response)
+                st.text("Bot: " + response.response)
             else:
                 st.text("Bot: Sorry, I couldn't find an answer.")
 
